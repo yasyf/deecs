@@ -17,15 +17,15 @@ def init():
 
 def off_track(first_dir, second_dir):
 	return """ 
-        ifelse is_white %s [
+        ifelse is_white %s = 1 [
           setstatus 2
           left 5 5
         ] [
-          ifelse is_white %s [
+          ifelse is_white %s = 1 [
             setstatus 3
             right 5 5
           ] [
-            ifelse ever_on_track [
+            ifelse ever_on_track = 1 [
               ifelse recovery_attempts < 4 [
                 setstatus 4
                 back 5 3
@@ -46,7 +46,7 @@ def main():
 	#TODO add logic if not on track
 	print """loop[
     check_on_track
-    ifelse on_track [
+    ifelse on_track = 1 [
       setever_on_track 1
       setrecovery_attempts 0
       setstatus 1
@@ -57,7 +57,7 @@ def main():
       ]
       [%s
       ]
-      if debug [
+      if debug = 1 [
         send status
       ]
     ]
@@ -104,7 +104,7 @@ def utilities():
 	
 	print """
 to check_on_track
-  if is_white %s [
+  if is_white %s = 1 [
     seton_track 1
   ]
   seton_track 0
