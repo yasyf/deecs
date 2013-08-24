@@ -121,7 +121,7 @@ def go():
 	print
 	utilities()
 
-globals = {"white_lower": 0, "white_upper": 0, "black_lower": 0, "black_upper": 0, "on_track": 0, "ever_on_track": 0, "recovery_attempts": 0, "debug": 1, "status": 6}
+globals = {"white_lower": 0, "white_upper": 50, "black_lower": 150, "black_upper": 255, "on_track": 0, "ever_on_track": 0, "recovery_attempts": 0, "debug": 1, "status": 6}
 #Status Codes: 0 (Error) | 1 (On Track) | 2 (Off Track: Track Found In First Direction) | 3 (Off Track: Track Found In Second Direction) | 4 (Off Track: Attempting Recovery) | 5 (Off Track: Recovery Failed) | 6 (Never On Track)
 bump_sensor = "sensord"
 motor_forwards = "thisway"
