@@ -18,19 +18,24 @@ def init():
 def off_track(first_dir, second_dir):
 	return """ 
         ifelse is_white %s [
+          setstatus 2
           left 5 5
         ] [
           ifelse is_white %s [
+            setstatus 3
             right 5 5
           ] [
             ifelse ever_on_track [
               ifelse recovery_attempts < 4 [
+                setstatus 4
                 back 5 3
                 setrecovery_attempts recovery_attempts + 1
               ] [
+                setstatus 5
                 forward 5 3
               ]
             ] [
+              setstatus 6
               forward 5 3
             ]
           ]
@@ -44,12 +49,16 @@ def main():
     ifelse on_track [
       setever_on_track 1
       setrecovery_attempts 0
+      setstatus 1
       forward 5 8
     ] [
       ab, off
       ifelse ((timer %% 4) %% 2) = 0 [%s
       ]
       [%s
+      ]
+      if debug [
+        send status
       ]
     ]
   ]""" % (off_track(sensor_left, sensor_right), off_track(sensor_right, sensor_left))
@@ -112,7 +121,8 @@ def go():
 	print
 	utilities()
 
-globals = {"white_lower": 0, "white_upper": 0, "black_lower": 0, "black_upper": 0, "on_track": 0, "ever_on_track": 0, "recovery_attempts": 0}
+globals = {"white_lower": 0, "white_upper": 0, "black_lower": 0, "black_upper": 0, "on_track": 0, "ever_on_track": 0, "recovery_attempts": 0, "debug": 1, "status": 6}
+#Status Codes: 0 (Error) | 1 (On Track) | 2 (Off Track: Track Found In First Direction) | 3 (Off Track: Track Found In Second Direction) | 4 (Off Track: Attempting Recovery) | 5 (Off Track: Recovery Failed) | 6 (Never On Track)
 bump_sensor = "sensord"
 motor_forwards = "thisway"
 motor_backwards = "thatway"
