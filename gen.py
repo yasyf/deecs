@@ -11,58 +11,65 @@ def init():
 	print "to init"
 	for g in globals:
 		print "  set%s %s" % (g, str(globals[g]))
-	print "  when [%s = 0] [\n    song\n    stop!\n  ]" % (bump_sensor)
 	print "  main"
 	print "end"
 
 def off_track(first_dir, second_dir):
-	return """ 
-        ifelse is_white %s = 1 [
-          setstatus 2
-          left 5 5
+	print """ 
+to off_track_%s_%s
+  ifelse is_white_%s = 1 [
+    setstatus 2
+    left 5 5
+  ] [
+    ifelse is_white_%s = 1 [
+      setstatus 3
+      right 5 5
+    ] [
+      ifelse ever_on_track = 1 [
+        ifelse recovery_attempts < 4 [
+    setstatus 4
+    back 5 3
+    setrecovery_attempts recovery_attempts + 1
         ] [
-          ifelse is_white %s = 1 [
-            setstatus 3
-            right 5 5
-          ] [
-            ifelse ever_on_track = 1 [
-              ifelse recovery_attempts < 4 [
-                setstatus 4
-                back 5 3
-                setrecovery_attempts recovery_attempts + 1
-              ] [
-                setstatus 5
-                forward 5 3
-              ]
-            ] [
-              setstatus 6
-              forward 5 3
-            ]
-          ]
-        ]""" % (first_dir, second_dir)
+    setstatus 5
+    forward 5 3
+        ]
+      ] [
+        setstatus 6
+        forward 5 3
+      ]
+    ]
+  ]
+end""" % (first_dir, second_dir, first_dir, second_dir)
 def main():
 	global sensor_left,sensor_right
 	print "to main"
-	#TODO add logic if not on track
 	print """loop[
     check_on_track
     ifelse on_track = 1 [
-      setever_on_track 1
       setrecovery_attempts 0
       setstatus 1
       forward 5 8
     ] [
       ab, off
-      ifelse ((timer %% 4) %% 2) = 0 [%s
+      ifelse ((timer %% 4) %% 2) = 0 [
+        off_track_%s_%s
       ]
-      [%s
+      [
+        off_track_%s_%s
       ]
       if debug = 1 [
         send status
       ]
+      if %s = 0 [
+        song
+        stop!
+      ]
     ]
-  ]""" % (off_track(sensor_left, sensor_right), off_track(sensor_right, sensor_left))
+  ]""" % (sensor_left, sensor_right, sensor_right, sensor_left, bump_sensor)
 	print "end"
+	off_track(sensor_left, sensor_right)
+	off_track(sensor_right, sensor_left)
 
 def music():
 	global notes_string
@@ -79,10 +86,11 @@ def directions():
 	global motor_forwards, motor_backwards, motor_left, motor_right
 	
 	for colour in ["black","white"]:
-		print "to is_%s :sensor_value" % (colour)
-		print "  if :sensor_value > %s_lower [" % (colour)
-		print "    if :sensor_value < %s_upper [" % (colour)
-		print "      output 1\n    ]\n  ]\n  output 0\nend"
+		for sensor in ["a","b","c"]:
+			print "to is_%s_sensor%s :sensor_value" % (colour, sensor)
+			print "  ifelse :sensor_value > %s_lower [" % (colour)
+			print "    ifelse :sensor_value < %s_upper [" % (colour)
+			print "      output 1\n    ] [\n      output 0\n    ] \n  ] [\n  output 0\n  ]\nend\n"
 		
 	dirs1 = {"left": motor_forwards, "right": motor_backwards}
 	for dir in dirs1:
@@ -104,10 +112,12 @@ def utilities():
 	
 	print """
 to check_on_track
-  if is_white %s = 1 [
+  ifelse is_white_%s = 1 [
+    setever_on_track 1
     seton_track 1
+  ] [
+    seton_track 0
   ]
-  seton_track 0
 end"""  % (sensor_front)
 
 def go():
