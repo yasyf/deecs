@@ -65,11 +65,7 @@ def main():
     ]
     check_on_track
     ifelse on_track = 1 [
-      setrecovery_attempts 0
-      setstatus 1
-      setrandbool 2
-      setofftrackfor 0
-      setfoundtrackdir 0
+      reset_vars
       forward 5 8
     ] [
       ab, off
@@ -147,6 +143,14 @@ to check_on_track
   ] [
     seton_track 0
   ]
+end
+
+to reset_vars
+  setrecovery_attempts 0
+  setstatus 1
+  setrandbool 2
+  setofftrackfor 0
+  setfoundtrackdir 0
 end"""  % (sensor_front)
 
 def go():
@@ -162,7 +166,7 @@ def go():
 	print
 	utilities()
 
-globals = {"white_lower": 0, "white_upper": 50, "black_lower": 150, "black_upper": 255, "on_track": 0, "ever_on_track": 0, "recovery_attempts": 0, "debug": 1, "status": 6, "randbool" : 2, "offtrackfor" : 0, "foundtrackdir": 0}
+globals = {"white_lower": 0, "white_upper": 15, "black_lower": 20, "black_upper": 255, "on_track": 0, "ever_on_track": 0, "recovery_attempts": 0, "debug": 1, "status": 6, "randbool" : 2, "offtrackfor" : 0, "foundtrackdir": 0}
 #Status Codes: 0 (Error) | 1 (On Track) | 2 (Off Track: Track Found In First Direction) | 3 (Off Track: Track Found In Second Direction) | 4 (Off Track: Attempting Recovery) | 5 (Off Track: Recovery Failed) | 6 (Never On Track)
 bump_sensor = "sensord"
 motor_forwards = "thisway"
