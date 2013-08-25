@@ -17,11 +17,21 @@ def init():
 def off_track(first_dir, second_dir):
 	print """ 
 to off_track_%s_%s
-  ifelse is_white_%s = 1 [
+  if foundtrackdir = 0 [
+    if is_white_%s = 1 [
+      setstatus 2
+      setfoundtrackdir 2
+    ]
+    if is_white_%s = 1 [
+      setstatus 3
+      setfoundtrackdir 3
+    ]
+  ]   
+  ifelse foundtrackdir = 2 [
     setstatus 2
     left 5 5
   ] [
-    ifelse is_white_%s = 1 [
+    ifelse foundtrackdir = 3 [
       setstatus 3
       right 5 5
     ] [
@@ -45,28 +55,40 @@ def main():
 	global sensor_left,sensor_right
 	print "to main"
 	print """loop[
+    if debug = 1 [
+      send status
+    ]
+    if %s = 0 [
+      ab, off
+      song
+      stop!
+    ]
     check_on_track
     ifelse on_track = 1 [
       setrecovery_attempts 0
       setstatus 1
+      setrandbool 2
+      setofftrackfor 0
+      setfoundtrackdir 0
       forward 5 8
     ] [
       ab, off
-      ifelse ((timer %% 4) %% 2) = 0 [
-        off_track_%s_%s
-      ]
-      [
-        off_track_%s_%s
-      ]
-      if debug = 1 [
-        send status
-      ]
-      if %s = 0 [
-        song
-        stop!
+      setofftrackfor offtrackfor + 1
+      ifelse offtrackfor < 3 [
+      forward 5 5
+      ] [
+        if randbool = 2 [
+          setrandbool random %% 2
+        ]
+        ifelse randbool = 0 [
+          off_track_%s_%s
+        ]
+        [
+          off_track_%s_%s
+        ]
       ]
     ]
-  ]""" % (sensor_left, sensor_right, sensor_right, sensor_left, bump_sensor)
+  ]""" % (bump_sensor, sensor_left, sensor_right, sensor_right, sensor_left)
 	print "end"
 	off_track(sensor_left, sensor_right)
 	off_track(sensor_right, sensor_left)
@@ -79,8 +101,15 @@ def music():
 	for note in notes:
 		if note in notes_dict:
 			print "  note %s 3" % (notes_dict.get(note))
+	print "dance"
 	print "end"
 
+def dance():
+	print "to dance"
+	for i in range (0,11):
+		print "  left 5 5"
+		print "  right 5 5"
+	print "end"
 
 def directions():
 	global motor_forwards, motor_backwards, motor_left, motor_right
@@ -127,11 +156,13 @@ def go():
 	print
 	music()
 	print
+	dance()
+	print
 	directions()
 	print
 	utilities()
 
-globals = {"white_lower": 0, "white_upper": 50, "black_lower": 150, "black_upper": 255, "on_track": 0, "ever_on_track": 0, "recovery_attempts": 0, "debug": 1, "status": 6}
+globals = {"white_lower": 0, "white_upper": 50, "black_lower": 150, "black_upper": 255, "on_track": 0, "ever_on_track": 0, "recovery_attempts": 0, "debug": 1, "status": 6, "randbool" : 2, "offtrackfor" : 0, "foundtrackdir": 0}
 #Status Codes: 0 (Error) | 1 (On Track) | 2 (Off Track: Track Found In First Direction) | 3 (Off Track: Track Found In Second Direction) | 4 (Off Track: Attempting Recovery) | 5 (Off Track: Recovery Failed) | 6 (Never On Track)
 bump_sensor = "sensord"
 motor_forwards = "thisway"
