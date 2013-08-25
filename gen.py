@@ -29,15 +29,18 @@ to off_track_%s_%s
   ]   
   ifelse foundtrackdir = 2 [
     setstatus 2
+    setforwardfailcount 0
     left 5 5
   ] [
     ifelse foundtrackdir = 3 [
       setstatus 3
+      setforwardfailcount 0
       right 5 5
     ] [
       ifelse ever_on_track = 1 [
         ifelse recovery_attempts < 4 [
     setstatus 4
+    setforwardfailcount forwardfailcount + 1
     back 5 3
     setrecovery_attempts recovery_attempts + 1
         ] [
@@ -65,6 +68,19 @@ def main():
     ]
     check_on_track
     ifelse on_track = 1 [
+      ifelse is_white_%s = 1 [
+        if forwardfailcount > 2 [
+          setforwardfailcount 0
+          left 5 5
+        ]
+      ] [
+        if is_white_%s = 1 [
+          if forwardfailcount > 2 [
+            setforwardfailcount 0
+            right 5 5
+          ]
+        ]
+      ]
       reset_vars
       forward 5 8
     ] [
@@ -84,7 +100,7 @@ def main():
         ]
       ]
     ]
-  ]""" % (bump_sensor, sensor_left, sensor_right, sensor_right, sensor_left)
+  ]""" % (bump_sensor, sensor_left, sensor_right, sensor_left, sensor_right, sensor_right, sensor_left)
 	print "end"
 	off_track(sensor_left, sensor_right)
 	off_track(sensor_right, sensor_left)
@@ -166,7 +182,7 @@ def go():
 	print
 	utilities()
 
-globals = {"white_lower": 0, "white_upper": 15, "black_lower": 20, "black_upper": 255, "on_track": 0, "ever_on_track": 0, "recovery_attempts": 0, "debug": 1, "status": 6, "randbool" : 2, "offtrackfor" : 0, "foundtrackdir": 0}
+globals = {"white_lower": 0, "white_upper": 15, "black_lower": 20, "black_upper": 255, "on_track": 0, "ever_on_track": 0, "recovery_attempts": 0, "debug": 1, "status": 6, "randbool" : 2, "offtrackfor" : 0, "foundtrackdir": 0, "forwardfailcount": 0}
 #Status Codes: 0 (Error) | 1 (On Track) | 2 (Off Track: Track Found In First Direction) | 3 (Off Track: Track Found In Second Direction) | 4 (Off Track: Attempting Recovery) | 5 (Off Track: Recovery Failed) | 6 (Never On Track)
 bump_sensor = "sensord"
 motor_forwards = "thisway"
