@@ -87,9 +87,9 @@ def directions():
 	
 	for colour in ["black","white"]:
 		for sensor in ["a","b","c"]:
-			print "to is_%s_sensor%s :sensor_value" % (colour, sensor)
-			print "  ifelse :sensor_value > %s_lower [" % (colour)
-			print "    ifelse :sensor_value < %s_upper [" % (colour)
+			print "to is_%s_sensor%s" % (colour, sensor)
+			print "  ifelse sensor%s > %s_lower [" % (sensor, colour)
+			print "    ifelse sensor%s < %s_upper [" % (sensor, colour)
 			print "      output 1\n    ] [\n      output 0\n    ] \n  ] [\n  output 0\n  ]\nend\n"
 		
 	dirs1 = {"left": motor_forwards, "right": motor_backwards}
